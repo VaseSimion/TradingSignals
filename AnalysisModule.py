@@ -49,11 +49,39 @@ def is_today_falling(stock):
 
 # checks if the last sma is bigger than the one before it and also that the last two lows are in ascending value
 def is_stock_uptrend(stock):
-    [minimlist, maximlist] = return_last_minimums_maximum_sell(stock)
-    if minimlist[0] > minimlist[1] > minimlist[2] and maximlist[0] > maximlist[1]:
-        return True
+    [raw_minimlist, raw_maximlist] = return_last_minimums_maximum_sell(stock)
+    minimlist = [x for x in raw_minimlist if str(x) != "nan"]
+    maximlist = [x for x in raw_maximlist if str(x) != "nan"]
+    last_min_index = raw_minimlist.index(minimlist[-1]), "out of", len(raw_minimlist)
+    last_max_index = raw_maximlist.index(maximlist[-1]), "out of", len(raw_maximlist)
+    if last_min_index > last_max_index:
+        if minimlist[-1] > minimlist[-2] > minimlist[-3] and maximlist[-1] > maximlist[-2]:
+            return True
+        else:
+            return False
+    else:
+        if minimlist[-1] > minimlist[-2] and maximlist[-1] > maximlist[-2] > maximlist[-3]:
+            return True
+        else:
+            return False
+
+
+# checks if the last sma is bigger than the one before it and also that the last two lows are in ascending value
+def is_breaking_out_of_base(stock):
+    [raw_minimlist, raw_maximlist] = return_last_minimums_maximum_sell(stock)
+    minimlist = [x for x in raw_minimlist if str(x) != "nan"]
+    maximlist = [x for x in raw_maximlist if str(x) != "nan"]
+    abosulte_min = min(minimlist[-4:])
+    absolute_max = max(maximlist[-4:])
+    if (absolute_max-abosulte_min)/abosulte_min < 0.2:
+        if stock['Close'].tolist()[-1] > absolute_max:
+            return True
+        else:
+            print("channel without break")
+            return False
     else:
         return False
+
 
 
 # returns open close values of last day in stock
