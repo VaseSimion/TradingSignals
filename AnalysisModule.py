@@ -21,7 +21,7 @@ def sma_potential_buy(stock):
     closing_price_list = stock['Close'].tolist()
     numpyclose = np.asarray(closing_price_list)
     sma = ti.sma(numpyclose, 17)
-    if sma[-50] < sma[-5] < sma[-1] < closing_price_list[-1] and closing_price_list[-2] < sma[-2]:
+    if sma[-50] < sma[-5] < sma[-1] < closing_price_list[-1]:
         return True
     else:
         return False
@@ -55,12 +55,13 @@ def is_stock_uptrend(stock):
     last_min_index = raw_minimlist.index(minimlist[-1]), "out of", len(raw_minimlist)
     last_max_index = raw_maximlist.index(maximlist[-1]), "out of", len(raw_maximlist)
     if last_min_index > last_max_index:
-        if minimlist[-1] > minimlist[-2] > minimlist[-3] and maximlist[-1] > maximlist[-2]:
+        if stock['Close'].tolist()[-1] > minimlist[-1] > minimlist[-2] > minimlist[-3] \
+                and maximlist[-1] > maximlist[-2]:
             return True
         else:
             return False
     else:
-        if minimlist[-1] > minimlist[-2] and maximlist[-1] > maximlist[-2] > maximlist[-3]:
+        if stock['Close'].tolist()[-1] > minimlist[-1] > minimlist[-2] and maximlist[-1] > maximlist[-2] > maximlist[-3]:
             return True
         else:
             return False
@@ -71,13 +72,18 @@ def is_breaking_out_of_base(stock):
     [raw_minimlist, raw_maximlist] = return_last_minimums_maximum_sell(stock)
     minimlist = [x for x in raw_minimlist if str(x) != "nan"]
     maximlist = [x for x in raw_maximlist if str(x) != "nan"]
-    abosulte_min = min(minimlist[-4:])
+    absolute_min = min(minimlist[-4:])
     absolute_max = max(maximlist[-4:])
-    if (absolute_max-abosulte_min)/abosulte_min < 0.2:
+
+    average_min = sum(minimlist[-4:])/4
+    average_max = sum(maximlist[-4:])/4
+    #print(average_min, absolute_min)
+    if (absolute_max-absolute_min)/absolute_min < 0.2 and abs((absolute_max-average_max)/absolute_max) < 0.05 and \
+            abs((absolute_min-average_min)/absolute_min) < 0.05:
         if stock['Close'].tolist()[-1] > absolute_max:
             return True
         else:
-            print("channel without break")
+            #print("channel without break")
             return False
     else:
         return False

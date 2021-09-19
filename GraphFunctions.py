@@ -71,7 +71,7 @@ def save_macd_buy(stock, name):
     plt.close()
 
 
-def draw_minmax(stock_history, save=False, save_name="testsave.png"):
+def draw_minmax(stock_history, save=False, title="Default", save_name="testsave.png"):
     [processed_min, processed_max] = As.return_last_minimums_maximum_sell(stock_history)
 
     df_close_min = pd.DataFrame(index=stock_history.index.tolist(), data=processed_min)
@@ -80,6 +80,6 @@ def draw_minmax(stock_history, save=False, save_name="testsave.png"):
     ap = [mpf.make_addplot(df_close_min, type="scatter", markersize=100, marker='^'),
           mpf.make_addplot(df_close_max, type="scatter", markersize=100, marker='v')]
     if save:
-        mpf.plot(stock_history, type="line", volume=True, addplot=ap, savefig=save_name)
+        mpf.plot(stock_history, type="line", volume=True, addplot=ap, title=title, savefig=save_name)
     else:
-        mpf.plot(stock_history, type="line", volume=True, addplot=ap)
+        mpf.plot(stock_history, type="line", volume=True, title=title, addplot=ap)

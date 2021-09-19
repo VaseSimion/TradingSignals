@@ -6,7 +6,7 @@ import yfinance as yf
 import AnalysisModule as As
 import GraphFunctions as Gf
 
-stock = "GE"
+stock = "SIVB"
 ticker_handle = yf.Ticker(stock)
 
 history = ticker_handle.history(interval="1d", period="2y", threads=False)
