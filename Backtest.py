@@ -7,9 +7,10 @@ import DatabaseStocks as Ds
 
 stock = "GME"
 stock_list = Ds.get_smaller_investing_lists()
-at_least_5_percent = 0
-at_least_10_percent = 0
-total_guesses = 0
+average_win = 0
+plays = 0
+old_plays = 0
+how_much_time_to_wait = 30
 
 for stock in stock_list:
     try:
@@ -18,28 +19,42 @@ for stock in stock_list:
         history.dropna(subset=["Close"], inplace=True)
 
         days_in_history = len(history.index)
-        end_of_prediction_interval = days_in_history - 30
+        end_of_prediction_interval = days_in_history - how_much_time_to_wait
 
         predictionIndex = 150
         while predictionIndex < end_of_prediction_interval:
             #print("**************************************************************")
             prediction_df = history.iloc[predictionIndex-150:predictionIndex, :]
             #print(prediction_df)
-            if As.is_breaking_out_of_base(prediction_df) and As.sma_potential_buy(prediction_df):
-                total_guesses += 1
-                #Gf.draw_minmax(prediction_df)
-                results_df = history.iloc[predictionIndex:predictionIndex+30, :]
+            if As.is_cup_and_hadle(prediction_df) and As.sma_potential_buy(prediction_df):
+                #Gf.draw_minmax_on_filtered(prediction_df)
+                results_df = history.iloc[predictionIndex:predictionIndex+how_much_time_to_wait, :]
                 #print("broke out on ", results_df.index[0])
-                if 100*(max(results_df['Close'].tolist()) - results_df['Open'].tolist()[0])/results_df['Open'].tolist()[0] > 5:
-                    at_least_5_percent += 1
-
-                if 100*(max(results_df['Close'].tolist()) - results_df['Open'].tolist()[0])/results_df['Open'].tolist()[0] > 10:
-                    at_least_10_percent += 1
+                result_list = [x / results_df['Open'].tolist()[0] for x in results_df['Close'].tolist()]
+                print(result_list)
+                max_win = 1
+                for index, element in enumerate(result_list):
+                    if element > max_win:
+                        max_win = element
+                    if (max_win - element) > 0.05:
+                        average_win += element
+                        plays += 1
+                        break
+                    if element > 1.2:
+                        average_win += element
+                        plays += 1
+                        break
+                    if index == (len(result_list) - 1):
+                        average_win += element
+                        plays += 1
+                        break
+                print("Max up from open", 100*(max(results_df['Close'].tolist()) - results_df['Open'].tolist()[0])/results_df['Open'].tolist()[0])
                 #print(results_df)
                 #mpf.plot(results_df, type="line", title="results")
-                predictionIndex += 30
+                predictionIndex += how_much_time_to_wait * 2
             predictionIndex += 1
     except:
         pass
-    print(at_least_5_percent, "out of", total_guesses, "were right until now for the 5% section")
-    print(at_least_10_percent, "out of", total_guesses, "were right until now for the 10% section")
+    if plays != old_plays:
+        old_plays = plays
+        print(average_win/plays, "out of ", plays, "plays")

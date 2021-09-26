@@ -83,3 +83,34 @@ def draw_minmax(stock_history, save=False, title="Default", save_name="testsave.
         mpf.plot(stock_history, type="line", volume=True, addplot=ap, title=title, savefig=save_name)
     else:
         mpf.plot(stock_history, type="line", volume=True, title=title, addplot=ap)
+
+
+def draw_filtered(stock_history, save=False, title="Default", save_name="testsave.png"):
+    processed_min = As.return_filtered_closing(stock_history)
+
+    df_close_min = pd.DataFrame(index=stock_history.index.tolist(), data=processed_min)
+
+    ap = [mpf.make_addplot(df_close_min, markersize=100)]
+    if save:
+        mpf.plot(stock_history, type="line", volume=True, addplot=ap, title=title, savefig=save_name)
+    else:
+        mpf.plot(stock_history, type="line", volume=True, title=title, addplot=ap)
+
+
+def draw_minmax_on_filtered(stock_history, save=False, title="Default", save_name="testsave.png"):
+    [processed_min, processed_max] = As.return_minmax_filtered(stock_history)
+
+    df_close_min = pd.DataFrame(index=stock_history.index.tolist(), data=processed_min)
+    df_close_max = pd.DataFrame(index=stock_history.index.tolist(), data=processed_max)
+
+    filtery = As.return_filtered_closing(stock_history)
+
+    df_filtered = pd.DataFrame(index=stock_history.index.tolist(), data=filtery)
+
+    ap = [mpf.make_addplot(df_close_min, type="scatter", markersize=100, marker='^'),
+          mpf.make_addplot(df_close_max, type="scatter", markersize=100, marker='v'),
+          mpf.make_addplot(df_filtered, markersize=100)]
+    if save:
+        mpf.plot(stock_history, type="line", volume=True, addplot=ap, title=title, savefig=save_name)
+    else:
+        mpf.plot(stock_history, type="line", volume=True, title=title, addplot=ap)
